@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 44, 51, 45;
+  --background-start-rgb: 244, 247, 244;
+  --background-end-rgb: 244, 247, 244;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Touch-friendly buttons */
+button, a {
+  @apply active:scale-95 transition-transform duration-100;
+  touch-action: manipulation;
+}
+
+/* Custom rounded corners */
+.rounded-sage {
+  border-radius: 24px;
+}
+
+/* Hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile-first card shadow */
+.sage-shadow {
+  box-shadow: 0 4px 20px -5px rgba(75, 94, 80, 0.1);
+}
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+
+  body {
+    background: white;
+    color: black;
+    user-select: text;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block;
+  }
+
+  .thermal-receipt {
+    width: 72mm;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+}

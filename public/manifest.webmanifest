@@ -1,0 +1,31 @@
+{
+  "name": "Sakti POS",
+  "short_name": "Sakti",
+  "description": "Aplikasi POS PWA dengan Next.js, Clerk, dan Laravel API.",
+  "start_url": "/pos",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#0F766E",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buka POS",
+      "short_name": "POS",
+      "url": "/pos"
+    },
+    {
+      "name": "Produk",
+      "short_name": "Produk",
+      "url": "/products"
+    }
+  ]
+}
