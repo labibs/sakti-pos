@@ -22,14 +22,21 @@ const isPublicRoute = createRouteMatcher([
   "/landing(.*)",
 ]);
 
+interface CustomJwtPayload {
+  publicMetadata?: {
+    role?: string;
+  };
+  metadata?: {
+    role?: string;
+  };
+}
+
 export default clerkMiddleware(async (auth, request) => {
   const { userId, sessionClaims } = await auth();
 
-  // Ambil role dari session claims
-  // Secara default Clerk menaruh metadata di bawah 'publicMetadata' atau 'metadata'
-  const role =
-    (sessionClaims?.publicMetadata as any)?.role ||
-    (sessionClaims?.metadata as any)?.role;
+  // Ambil role dari session claims dengan type safety
+  const claims = sessionClaims as unknown as CustomJwtPayload;
+  const role = claims?.publicMetadata?.role || claims?.metadata?.role;
 
   // 1. Lindungi rute Admin
   if (isAdminRoute(request)) {
