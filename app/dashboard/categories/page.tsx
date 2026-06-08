@@ -4,7 +4,15 @@ import { AppShell } from "@/components/app-shell";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { ArrowLeft, Plus, Tags, Trash2, Loader2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Tags,
+  Trash2,
+  Loader2,
+  X,
+  Pencil,
+} from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
 type Category = {
@@ -19,13 +27,13 @@ export default function CategoriesPage() {
   const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const token = await getToken();
       const res = await apiFetch<any>("/catalog/categories", { token });
-      // Backend apiResource usually returns { data: [...] } or just [...]
       setCategories(res.data || res || []);
     } catch (e) {
       console.warn("Failed to fetch categories", e);
@@ -45,19 +53,34 @@ export default function CategoriesPage() {
     try {
       setSubmitting(true);
       const token = await getToken();
-      await apiFetch("/catalog/categories", {
-        method: "POST",
-        token,
-        body: JSON.stringify({ name: newName.trim() }),
-      });
+      if (editingCategory) {
+        await apiFetch("/catalog/categories/" + editingCategory.id, {
+          method: "PUT",
+          token,
+          body: JSON.stringify({ name: newName.trim() }),
+        });
+      } else {
+        await apiFetch("/catalog/categories", {
+          method: "POST",
+          token,
+          body: JSON.stringify({ name: newName.trim() }),
+        });
+      }
       setNewName("");
       setShowModal(false);
+      setEditingCategory(null);
       fetchCategories();
     } catch (e) {
       alert("Gagal menambah kategori");
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEdit = (category: Category) => {
+    setEditingCategory(category);
+    setNewName(category.name);
+    setShowModal(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -95,7 +118,11 @@ export default function CategoriesPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => {
+            setEditingCategory(null);
+            setNewName("");
+            setShowModal(true);
+          }}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-sage-800 px-4 py-3 font-semibold text-white shadow-lg shadow-sage-800/20 active:scale-95 transition-transform"
         >
           <Plus className="h-4 w-4" />
@@ -127,6 +154,13 @@ export default function CategoriesPage() {
                 </div>
                 <p className="font-semibold text-sage-900">{category.name}</p>
               </div>
+              {/* FIX: tombol edit memanggil handleEdit, bukan handleDelete */}
+              <button
+                onClick={() => handleEdit(category)}
+                className="p-2 text-sage-400 hover:text-sage-600 hover:bg-sage-50 rounded-lg transition-colors"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
               <button
                 onClick={() => handleDelete(category.id)}
                 className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -138,7 +172,7 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* MODAL TAMBAH KATEGORI */}
+      {/* MODAL TAMBAH / UBAH KATEGORI */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -147,7 +181,9 @@ export default function CategoriesPage() {
           />
           <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-sage-900">Kategori Baru</h3>
+              <h3 className="text-lg font-bold text-sage-900">
+                {editingCategory ? "Ubah Kategori" : "Kategori Baru"}
+              </h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="p-1 hover:bg-sage-50 rounded-full"
@@ -178,13 +214,14 @@ export default function CategoriesPage() {
                   Batal
                 </button>
                 <button
+                  type="submit"
                   disabled={submitting || !newName.trim()}
                   className="flex-[2] bg-sage-800 text-white p-3 rounded-xl font-bold disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : null}
-                  Simpan
+                  {editingCategory ? "Simpan Perubahan" : "Simpan"}
                 </button>
               </div>
             </form>

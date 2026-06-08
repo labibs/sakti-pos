@@ -3,9 +3,13 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
-const publishableKey =
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??
-  "pk_test_cGxhY2Vob2xkZXIuY2xlcmsuYWNjb3VudHMuZGV2JA";
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+if (!publishableKey) {
+  throw new Error(
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not set. Clerk cannot initialize.",
+  );
+}
 
 export const metadata: Metadata = {
   title: "Sakti POS",
@@ -25,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body>
         <ClerkProvider publishableKey={publishableKey}>
           {children}
